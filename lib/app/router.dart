@@ -10,6 +10,7 @@ import '../features/onboarding/presentation/pages/fitness_goal_screen.dart';
 import '../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../features/onboarding/presentation/pages/splash_page.dart';
 import '../features/onboarding/presentation/pages/welcome_screen.dart';
+import '../features/onboarding/presentation/pages/workout_preferences_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -49,6 +50,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/onboarding/goals',
       builder: (context, state) => const FitnessGoalScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/preferences',
+      builder: (context, state) => const WorkoutPreferencesScreen(),
     ),
     GoRoute(
       path: '/dashboard',

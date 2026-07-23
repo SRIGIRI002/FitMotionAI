@@ -88,8 +88,7 @@ class _FitnessGoalScreenState extends State<FitnessGoalScreen> {
 
   void _handleContinue() {
     if (!_validate()) return;
-    // Navigate to the next onboarding step or dashboard
-    context.go('/dashboard');
+    context.go('/onboarding/preferences');
   }
 
   void _showSnackBar(String message) {

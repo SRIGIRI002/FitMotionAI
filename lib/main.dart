@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'app/app.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -10,24 +11,5 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const FitMotionAI());
-}
-
-class FitMotionAI extends StatelessWidget {
-  const FitMotionAI({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Text(
-            '🎉 Firebase Connected Successfully!',
-            style: TextStyle(fontSize: 22),
-          ),
-        ),
-      ),
-    );
-  }
+  runApp(const App());
 }

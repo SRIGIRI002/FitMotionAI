@@ -104,8 +104,7 @@ class _BodyMetricsScreenState extends State<BodyMetricsScreen> {
 
   void _handleContinue() {
     if (!_validate()) return;
-    // Next onboarding step will be wired here in a future sprint.
-    context.go('/dashboard');
+    context.go('/onboarding/goals');
   }
 
   void _showSnackBar(String message) {

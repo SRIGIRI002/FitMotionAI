@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../services/onboarding_service.dart';
+
 class FitnessGoalScreen extends StatefulWidget {
   const FitnessGoalScreen({super.key});
 
@@ -11,6 +13,14 @@ class FitnessGoalScreen extends StatefulWidget {
 class _FitnessGoalScreenState extends State<FitnessGoalScreen> {
   String? _selectedGoal;
   String? _selectedExperience;
+
+  @override
+  void initState() {
+    super.initState();
+    final data = OnboardingData.instance;
+    if (data.goal.isNotEmpty) _selectedGoal = data.goal;
+    if (data.experience.isNotEmpty) _selectedExperience = data.experience;
+  }
 
   static const List<_GoalOption> _goals = [
     _GoalOption(
@@ -88,6 +98,11 @@ class _FitnessGoalScreenState extends State<FitnessGoalScreen> {
 
   void _handleContinue() {
     if (!_validate()) return;
+
+    final data = OnboardingData.instance;
+    data.goal = _selectedGoal!;
+    data.experience = _selectedExperience!;
+
     context.go('/onboarding/preferences');
   }
 

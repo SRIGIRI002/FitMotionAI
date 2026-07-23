@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../services/onboarding_service.dart';
+
 class BasicProfileScreen extends StatefulWidget {
   const BasicProfileScreen({super.key});
 
@@ -15,6 +17,15 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
   String? _selectedGender;
 
   static const _genderOptions = ['Male', 'Female', 'Prefer not to say'];
+
+  @override
+  void initState() {
+    super.initState();
+    final data = OnboardingData.instance;
+    if (data.name.isNotEmpty) _nameController.text = data.name;
+    if (data.age != null) _ageController.text = data.age.toString();
+    if (data.gender.isNotEmpty) _selectedGender = data.gender;
+  }
 
   @override
   void dispose() {
@@ -53,6 +64,12 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
 
   void _handleContinue() {
     if (!_validate()) return;
+
+    final data = OnboardingData.instance;
+    data.name = _nameController.text.trim();
+    data.age = int.parse(_ageController.text.trim());
+    data.gender = _selectedGender!;
+
     context.go('/onboarding/metrics');
   }
 

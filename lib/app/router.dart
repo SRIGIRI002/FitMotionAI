@@ -8,6 +8,7 @@ import '../features/onboarding/presentation/pages/basic_profile_screen.dart';
 import '../features/onboarding/presentation/pages/body_metrics_screen.dart';
 import '../features/onboarding/presentation/pages/fitness_goal_screen.dart';
 import '../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../features/onboarding/presentation/pages/review_screen.dart';
 import '../features/onboarding/presentation/pages/splash_page.dart';
 import '../features/onboarding/presentation/pages/welcome_screen.dart';
 import '../features/onboarding/presentation/pages/workout_preferences_screen.dart';
@@ -54,6 +55,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/onboarding/preferences',
       builder: (context, state) => const WorkoutPreferencesScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/review',
+      builder: (context, state) => const ReviewScreen(),
     ),
     GoRoute(
       path: '/dashboard',

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../services/onboarding_service.dart';
+
 class BodyMetricsScreen extends StatefulWidget {
   const BodyMetricsScreen({super.key});
 
@@ -19,8 +21,13 @@ class _BodyMetricsScreenState extends State<BodyMetricsScreen> {
   @override
   void initState() {
     super.initState();
+    final data = OnboardingData.instance;
+    if (data.heightCm != null) _heightController.text = data.heightCm.toString();
+    if (data.weightKg != null) _weightController.text = data.weightKg.toString();
+
     _heightController.addListener(_updateBmi);
     _weightController.addListener(_updateBmi);
+    _updateBmi();
   }
 
   @override
@@ -104,6 +111,12 @@ class _BodyMetricsScreenState extends State<BodyMetricsScreen> {
 
   void _handleContinue() {
     if (!_validate()) return;
+
+    final data = OnboardingData.instance;
+    data.heightCm = double.parse(_heightController.text.trim());
+    data.weightKg = double.parse(_weightController.text.trim());
+    data.bmi = _bmi;
+
     context.go('/onboarding/goals');
   }
 

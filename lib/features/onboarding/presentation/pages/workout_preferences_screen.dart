@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../services/onboarding_service.dart';
+
 class WorkoutPreferencesScreen extends StatefulWidget {
   const WorkoutPreferencesScreen({super.key});
 
@@ -14,6 +16,18 @@ class _WorkoutPreferencesScreenState extends State<WorkoutPreferencesScreen> {
   final Set<String> _selectedDays = {};
   final Set<String> _selectedEquipment = {};
   String? _selectedDuration;
+
+  @override
+  void initState() {
+    super.initState();
+    final data = OnboardingData.instance;
+    if (data.location.isNotEmpty) _selectedLocation = data.location;
+    if (data.workoutDays.isNotEmpty) _selectedDays.addAll(data.workoutDays);
+    if (data.equipment.isNotEmpty) _selectedEquipment.addAll(data.equipment);
+    if (data.workoutDuration.isNotEmpty) {
+      _selectedDuration = data.workoutDuration;
+    }
+  }
 
   static const List<_LocationOption> _locations = [
     _LocationOption(id: 'home', emoji: '🏠', title: 'Home'),
@@ -69,8 +83,14 @@ class _WorkoutPreferencesScreenState extends State<WorkoutPreferencesScreen> {
 
   void _handleContinue() {
     if (!_validate()) return;
-    // Next onboarding step will be wired here in a future sprint
-    context.go('/dashboard');
+
+    final data = OnboardingData.instance;
+    data.location = _selectedLocation!;
+    data.workoutDays = _selectedDays.toList();
+    data.equipment = _selectedEquipment.toList();
+    data.workoutDuration = _selectedDuration!;
+
+    context.go('/onboarding/review');
   }
 
   void _showSnackBar(String message) {

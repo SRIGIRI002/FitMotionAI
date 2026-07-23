@@ -1,8 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class ForgotPasswordPage extends StatelessWidget {
+import '../../controller/auth_controller.dart';
+
+class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
+
+  @override
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+}
+
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final _controller = AuthController();
+
+  Future<void> _handleResetPassword() async {
+    try {
+      await _controller.resetPassword(email: '');
+    } on UnimplementedError {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Authentication coming in next sprint.'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +74,7 @@ class ForgotPasswordPage extends StatelessWidget {
 
                   // ── Send Reset Link Button ────────────────────────────
                   FilledButton(
-                    onPressed: () {},
+                    onPressed: _handleResetPassword,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
                       shape: RoundedRectangleBorder(

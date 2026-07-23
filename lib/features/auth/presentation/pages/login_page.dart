@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../controller/auth_controller.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -10,6 +12,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
+  final _controller = AuthController();
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -72,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   // ── Login Button ──────────────────────────────────────
                   FilledButton(
-                    onPressed: () {},
+                    onPressed: _handleLogin,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
                       shape: RoundedRectangleBorder(
@@ -101,6 +104,19 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogin() async {
+    try {
+      await _controller.login(email: '', password: '');
+    } on UnimplementedError {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Authentication coming in next sprint.'),
+        ),
+      );
+    }
   }
 }
 

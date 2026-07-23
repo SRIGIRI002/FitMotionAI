@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "839718408691",
+    "project_id": "fitmotionai-5d0a6",
+    "storage_bucket": "fitmotionai-5d0a6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839718408691:android:f9ffefa5c8935f09d8c286",
+        "android_client_info": {
+          "package_name": "com.example.fitmotion_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrbnxVfNb3wlzknHoQryhgL5Ey_9Jq_ic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

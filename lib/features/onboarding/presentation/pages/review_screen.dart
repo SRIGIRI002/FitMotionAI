@@ -223,22 +223,31 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       onEdit: () => context.go('/onboarding/health'),
                       colorScheme: colorScheme,
                       textTheme: textTheme,
-                      children: data.hasHealthConcern
+                      children: data.healthScreeningSkipped
                           ? [
-                              _ReviewItem(label: 'Body Part', value: data.healthBodyPart ?? '—', textTheme: textTheme, colorScheme: colorScheme),
-                              _ReviewItem(label: 'Issue Type', value: data.healthIssueType ?? '—', textTheme: textTheme, colorScheme: colorScheme),
-                              _ReviewItem(label: 'Status', value: data.healthStatus ?? '—', textTheme: textTheme, colorScheme: colorScheme),
-                              if (data.healthNotes != null && data.healthNotes!.isNotEmpty)
-                                _ReviewItem(label: 'Notes', value: data.healthNotes!, textTheme: textTheme, colorScheme: colorScheme),
-                            ]
-                          : [
                               _ReviewItem(
                                 label: 'Status',
-                                value: 'No health concerns reported.',
+                                value: 'Health screening skipped.',
                                 textTheme: textTheme,
                                 colorScheme: colorScheme,
                               ),
-                            ],
+                            ]
+                          : data.hasHealthConcern
+                              ? [
+                                  _ReviewItem(label: 'Body Part', value: data.healthBodyPart ?? '—', textTheme: textTheme, colorScheme: colorScheme),
+                                  _ReviewItem(label: 'Issue Type', value: data.healthIssueType ?? '—', textTheme: textTheme, colorScheme: colorScheme),
+                                  _ReviewItem(label: 'Status', value: data.healthStatus ?? '—', textTheme: textTheme, colorScheme: colorScheme),
+                                  if (data.healthNotes != null && data.healthNotes!.isNotEmpty)
+                                    _ReviewItem(label: 'Notes', value: data.healthNotes!, textTheme: textTheme, colorScheme: colorScheme),
+                                ]
+                              : [
+                                  _ReviewItem(
+                                    label: 'Status',
+                                    value: 'No health concerns reported.',
+                                    textTheme: textTheme,
+                                    colorScheme: colorScheme,
+                                  ),
+                                ],
                     ),
 
                     const SizedBox(height: 44),

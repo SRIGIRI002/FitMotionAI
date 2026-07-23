@@ -98,6 +98,7 @@ class _HealthScreeningScreenState extends State<HealthScreeningScreen> {
     if (!_validate()) return;
 
     final data = OnboardingData.instance;
+    data.healthScreeningSkipped = false;
     data.hasHealthConcern = _hasHealthConcern;
     if (_hasHealthConcern) {
       data.healthBodyPart = _selectedBodyPart;
@@ -111,6 +112,12 @@ class _HealthScreeningScreenState extends State<HealthScreeningScreen> {
       data.healthNotes = null;
     }
 
+    context.go('/onboarding/review');
+  }
+
+  void _handleSkip() {
+    final data = OnboardingData.instance;
+    data.healthScreeningSkipped = true;
     context.go('/onboarding/review');
   }
 
@@ -393,6 +400,21 @@ class _HealthScreeningScreenState extends State<HealthScreeningScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // ── Skip Button (Progressive Profiling) ──────────
+                    Center(
+                      child: TextButton(
+                        onPressed: _handleSkip,
+                        child: Text(
+                          "I'll complete this later",
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),

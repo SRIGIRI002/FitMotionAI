@@ -16,6 +16,7 @@ class OnboardingData {
   String workoutDuration = '';
 
   // Health Screening fields
+  bool healthScreeningSkipped = false;
   bool hasHealthConcern = false;
   String? healthBodyPart;
   String? healthIssueType;
@@ -26,14 +27,26 @@ class OnboardingData {
   OnboardingData._internal();
 
   Map<String, dynamic> toFirestoreMap() {
-    final Map<String, dynamic> healthScreeningData = {
-      'hasHealthConcern': hasHealthConcern,
-    };
-    if (hasHealthConcern) {
-      healthScreeningData['bodyPart'] = healthBodyPart ?? '';
-      healthScreeningData['issueType'] = healthIssueType ?? '';
-      healthScreeningData['status'] = healthStatus ?? '';
-      healthScreeningData['notes'] = healthNotes ?? '';
+    Map<String, dynamic> healthScreeningData;
+
+    if (healthScreeningSkipped) {
+      healthScreeningData = {
+        'skipped': true,
+      };
+    } else if (hasHealthConcern) {
+      healthScreeningData = {
+        'hasHealthConcern': true,
+        'skipped': false,
+        'bodyPart': healthBodyPart ?? '',
+        'issueType': healthIssueType ?? '',
+        'status': healthStatus ?? '',
+        'notes': healthNotes ?? '',
+      };
+    } else {
+      healthScreeningData = {
+        'hasHealthConcern': false,
+        'skipped': false,
+      };
     }
 
     return {

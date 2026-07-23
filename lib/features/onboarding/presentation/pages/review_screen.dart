@@ -27,7 +27,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         ),
       );
 
-      context.go('/dashboard');
+      context.go('/onboarding/analysis');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

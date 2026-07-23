@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,15 +12,71 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _authController = AuthController();
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  final _controller = AuthController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   void _togglePassword() =>
       setState(() => _obscurePassword = !_obscurePassword);
 
   void _toggleConfirmPassword() =>
       setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+
+  Future<void> _handleSignup() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      _showSnackBar('Please fill in all fields.');
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showSnackBar('Passwords do not match.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authController.signup(
+        name: name,
+        email: email,
+        password: password,
+      );
+      if (!mounted) return;
+      _showSnackBar('Account created successfully.');
+      context.go('/login');
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      _showSnackBar(AuthController.errorMessageFor(e));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +110,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   // ── Full Name ─────────────────────────────────────────
                   _OutlinedTextField(
+                    controller: _nameController,
                     labelText: 'Full Name',
                     hintText: 'John Doe',
                     prefixIcon: Icons.person_outline,
@@ -65,6 +123,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   // ── Email ─────────────────────────────────────────────
                   _OutlinedTextField(
+                    controller: _emailController,
                     labelText: 'Email',
                     hintText: 'you@example.com',
                     prefixIcon: Icons.email_outlined,
@@ -77,6 +136,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   // ── Password ──────────────────────────────────────────
                   _PasswordTextField(
+                    controller: _passwordController,
                     labelText: 'Password',
                     obscureText: _obscurePassword,
                     textInputAction: TextInputAction.next,
@@ -87,6 +147,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   // ── Confirm Password ──────────────────────────────────
                   _PasswordTextField(
+                    controller: _confirmPasswordController,
                     labelText: 'Confirm Password',
                     obscureText: _obscureConfirmPassword,
                     textInputAction: TextInputAction.done,
@@ -97,20 +158,29 @@ class _SignupPageState extends State<SignupPage> {
 
                   // ── Create Account Button ─────────────────────────────
                   FilledButton(
-                    onPressed: _handleSignup,
+                    onPressed: _isLoading ? null : _handleSignup,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
-                      'Create Account',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Create Account',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
 
                   const Spacer(),
@@ -132,19 +202,6 @@ class _SignupPageState extends State<SignupPage> {
         ),
       ),
     );
-  }
-
-  Future<void> _handleSignup() async {
-    try {
-      await _controller.signup(email: '', password: '');
-    } on UnimplementedError {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Authentication coming in next sprint.'),
-        ),
-      );
-    }
   }
 }
 
@@ -193,6 +250,7 @@ class _AuthHeader extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 class _OutlinedTextField extends StatelessWidget {
   const _OutlinedTextField({
+    required this.controller,
     required this.labelText,
     required this.hintText,
     required this.prefixIcon,
@@ -202,6 +260,7 @@ class _OutlinedTextField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
   });
 
+  final TextEditingController controller;
   final String labelText;
   final String hintText;
   final IconData prefixIcon;
@@ -213,6 +272,7 @@ class _OutlinedTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       autocorrect: autocorrect,
@@ -234,12 +294,14 @@ class _OutlinedTextField extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 class _PasswordTextField extends StatelessWidget {
   const _PasswordTextField({
+    required this.controller,
     required this.labelText,
     required this.obscureText,
     required this.textInputAction,
     required this.onToggle,
   });
 
+  final TextEditingController controller;
   final String labelText;
   final bool obscureText;
   final TextInputAction textInputAction;
@@ -248,6 +310,7 @@ class _PasswordTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       obscureText: obscureText,
       keyboardType: TextInputType.visiblePassword,
       textInputAction: textInputAction,

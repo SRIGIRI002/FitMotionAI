@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,13 +12,51 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authController = AuthController();
+
   bool _obscurePassword = true;
-  final _controller = AuthController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _togglePasswordVisibility() {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
+    setState(() => _obscurePassword = !_obscurePassword);
+  }
+
+  Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      _showSnackBar('Please enter your email and password.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authController.login(email: email, password: password);
+      if (!mounted) return;
+      context.go('/dashboard');
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      _showSnackBar(AuthController.errorMessageFor(e));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -46,15 +85,50 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 48),
 
-                  // ── Form ─────────────────────────────────────────────
-                  _EmailField(colorScheme: colorScheme),
+                  // ── Email ─────────────────────────────────────────────
+                  TextField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      hintText: 'you@example.com',
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
 
                   const SizedBox(height: 16),
 
-                  _PasswordField(
-                    obscurePassword: _obscurePassword,
-                    onToggle: _togglePasswordVisibility,
-                    colorScheme: colorScheme,
+                  // ── Password ──────────────────────────────────────────
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    keyboardType: TextInputType.visiblePassword,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _handleLogin(),
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      hintText: '••••••••',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
+                        onPressed: _togglePasswordVisibility,
+                        tooltip: _obscurePassword
+                            ? 'Show password'
+                            : 'Hide password',
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
                   ),
 
                   const SizedBox(height: 8),
@@ -75,20 +149,29 @@ class _LoginPageState extends State<LoginPage> {
 
                   // ── Login Button ──────────────────────────────────────
                   FilledButton(
-                    onPressed: _handleLogin,
+                    onPressed: _isLoading ? null : _handleLogin,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
 
                   const Spacer(),
@@ -104,19 +187,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-  }
-
-  Future<void> _handleLogin() async {
-    try {
-      await _controller.login(email: '', password: '');
-    } on UnimplementedError {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Authentication coming in next sprint.'),
-        ),
-      );
-    }
   }
 }
 
@@ -154,73 +224,6 @@ class _TopSection extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Email Field
-// ─────────────────────────────────────────────────────────────────────────────
-class _EmailField extends StatelessWidget {
-  const _EmailField({required this.colorScheme});
-
-  final ColorScheme colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      keyboardType: TextInputType.emailAddress,
-      textInputAction: TextInputAction.next,
-      autocorrect: false,
-      decoration: InputDecoration(
-        labelText: 'Email',
-        hintText: 'you@example.com',
-        prefixIcon: const Icon(Icons.email_outlined),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Password Field
-// ─────────────────────────────────────────────────────────────────────────────
-class _PasswordField extends StatelessWidget {
-  const _PasswordField({
-    required this.obscurePassword,
-    required this.onToggle,
-    required this.colorScheme,
-  });
-
-  final bool obscurePassword;
-  final VoidCallback onToggle;
-  final ColorScheme colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      obscureText: obscurePassword,
-      keyboardType: TextInputType.visiblePassword,
-      textInputAction: TextInputAction.done,
-      decoration: InputDecoration(
-        labelText: 'Password',
-        hintText: '••••••••',
-        prefixIcon: const Icon(Icons.lock_outline),
-        suffixIcon: IconButton(
-          icon: Icon(
-            obscurePassword
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-          ),
-          onPressed: onToggle,
-          tooltip: obscurePassword ? 'Show password' : 'Hide password',
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
-      ),
     );
   }
 }

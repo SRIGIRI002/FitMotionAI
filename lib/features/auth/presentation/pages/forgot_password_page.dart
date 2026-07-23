@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,19 +12,43 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final _controller = AuthController();
+  final _emailController = TextEditingController();
+  final _authController = AuthController();
+
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleResetPassword() async {
-    try {
-      await _controller.resetPassword(email: '');
-    } on UnimplementedError {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Authentication coming in next sprint.'),
-        ),
-      );
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      _showSnackBar('Please enter your email address.');
+      return;
     }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authController.resetPassword(email: email);
+      if (!mounted) return;
+      _showSnackBar('Password reset email sent.');
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      _showSnackBar(AuthController.errorMessageFor(e));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -57,9 +82,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                   // ── Email Field ───────────────────────────────────────
                   TextField(
+                    controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.done,
                     autocorrect: false,
+                    onSubmitted: (_) => _handleResetPassword(),
                     decoration: InputDecoration(
                       labelText: 'Email',
                       hintText: 'you@example.com',
@@ -74,20 +101,29 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                   // ── Send Reset Link Button ────────────────────────────
                   FilledButton(
-                    onPressed: _handleResetPassword,
+                    onPressed: _isLoading ? null : _handleResetPassword,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
-                      'Send Reset Link',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Send Reset Link',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
 
                   const Spacer(),

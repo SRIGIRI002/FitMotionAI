@@ -5,6 +5,7 @@ import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/pages/signup_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/onboarding/presentation/pages/basic_profile_screen.dart';
+import '../features/onboarding/presentation/pages/body_metrics_screen.dart';
 import '../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../features/onboarding/presentation/pages/splash_page.dart';
 import '../features/onboarding/presentation/pages/welcome_screen.dart';
@@ -39,6 +40,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/onboarding/profile',
       builder: (context, state) => const BasicProfileScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/metrics',
+      builder: (context, state) => const BodyMetricsScreen(),
     ),
     GoRoute(
       path: '/dashboard',

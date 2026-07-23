@@ -53,9 +53,7 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
 
   void _handleContinue() {
     if (!_validate()) return;
-    // Navigate to the next onboarding step or dashboard.
-    // Remaining onboarding steps will be added in future sprints.
-    context.go('/dashboard');
+    context.go('/onboarding/metrics');
   }
 
   void _showSnackBar(String message) {

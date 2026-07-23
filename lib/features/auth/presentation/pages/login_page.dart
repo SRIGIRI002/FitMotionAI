@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       await _authController.login(email: email, password: password);
       if (!mounted) return;
-      context.go('/dashboard');
+      context.go('/onboarding/welcome');
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       _showSnackBar(AuthController.errorMessageFor(e));

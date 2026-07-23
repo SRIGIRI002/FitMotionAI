@@ -15,10 +15,27 @@ class OnboardingData {
   List<String> equipment = [];
   String workoutDuration = '';
 
+  // Health Screening fields
+  bool hasHealthConcern = false;
+  String? healthBodyPart;
+  String? healthIssueType;
+  String? healthStatus;
+  String? healthNotes;
+
   static final OnboardingData instance = OnboardingData._internal();
   OnboardingData._internal();
 
   Map<String, dynamic> toFirestoreMap() {
+    final Map<String, dynamic> healthScreeningData = {
+      'hasHealthConcern': hasHealthConcern,
+    };
+    if (hasHealthConcern) {
+      healthScreeningData['bodyPart'] = healthBodyPart ?? '';
+      healthScreeningData['issueType'] = healthIssueType ?? '';
+      healthScreeningData['status'] = healthStatus ?? '';
+      healthScreeningData['notes'] = healthNotes ?? '';
+    }
+
     return {
       'name': name,
       'age': age,
@@ -32,6 +49,7 @@ class OnboardingData {
       'workoutDays': workoutDays,
       'equipment': equipment,
       'workoutDuration': workoutDuration,
+      'healthScreening': healthScreeningData,
       'onboardingCompleted': true,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),

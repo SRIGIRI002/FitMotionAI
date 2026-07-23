@@ -96,11 +96,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Progress Header (Step 5 of 5, 100%) ─────────────────
+            // ── Progress Header (Step 6 of 6, 100%) ─────────────────
             _OnboardingProgressHeader(
               colorScheme: colorScheme,
-              step: 5,
-              totalSteps: 5,
+              step: 6,
+              totalSteps: 6,
               percent: 1.0,
               label: '100%',
             ),
@@ -215,6 +215,32 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       ],
                     ),
 
+                    const SizedBox(height: 16),
+
+                    // ── Card 5: Health Screening ──────────────────────
+                    _ReviewSectionCard(
+                      title: '🩺 Health Screening',
+                      onEdit: () => context.go('/onboarding/health'),
+                      colorScheme: colorScheme,
+                      textTheme: textTheme,
+                      children: data.hasHealthConcern
+                          ? [
+                              _ReviewItem(label: 'Body Part', value: data.healthBodyPart ?? '—', textTheme: textTheme, colorScheme: colorScheme),
+                              _ReviewItem(label: 'Issue Type', value: data.healthIssueType ?? '—', textTheme: textTheme, colorScheme: colorScheme),
+                              _ReviewItem(label: 'Status', value: data.healthStatus ?? '—', textTheme: textTheme, colorScheme: colorScheme),
+                              if (data.healthNotes != null && data.healthNotes!.isNotEmpty)
+                                _ReviewItem(label: 'Notes', value: data.healthNotes!, textTheme: textTheme, colorScheme: colorScheme),
+                            ]
+                          : [
+                              _ReviewItem(
+                                label: 'Status',
+                                value: 'No health concerns reported.',
+                                textTheme: textTheme,
+                                colorScheme: colorScheme,
+                              ),
+                            ],
+                    ),
+
                     const SizedBox(height: 44),
 
                     // ── Finish Setup Button ──────────────────────────
@@ -250,7 +276,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     OutlinedButton(
                       onPressed: _isLoading
                           ? null
-                          : () => context.go('/onboarding/preferences'),
+                          : () => context.go('/onboarding/health'),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(52),
                         shape: RoundedRectangleBorder(

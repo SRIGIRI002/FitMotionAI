@@ -90,7 +90,7 @@ class _WorkoutPreferencesScreenState extends State<WorkoutPreferencesScreen> {
     data.equipment = _selectedEquipment.toList();
     data.workoutDuration = _selectedDuration!;
 
-    context.go('/onboarding/review');
+    context.go('/onboarding/health');
   }
 
   void _showSnackBar(String message) {
